@@ -1,0 +1,93 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+int c=0,d=0;
+
+/*in storestack function in if(disc[v]==-1 ) the low[i] is assigned min(low[i],low[v])
+  AND
+  the stack needs to be passed by refernece for the progrma to work using pointers.
+  AND 
+  c and D have been made global.
+*/
+
+void storestack(int i , vector<int > adj[], int disc[], int low[], stack<int > *st, bool stackmember[]){
+	int ans = 0 ;
+	static int time = 0;
+	disc[i]=low[i]=++time;
+	st->push(i);
+	
+	stackmember[i]=true;
+
+	for(auto it = adj[i].begin() ; it != adj[i].end() ; it++){
+		int v= (*it);
+		if(disc[v]==-1 ){   // disc =-1 shows it hasn't been visited yet.
+			 storestack(v,adj, disc, low , st,stackmember);
+
+			low[i]= min(low[i], low[v]);    //NOTICE BOTH ARE LOW.
+		
+		}
+		else if(stackmember[v]== true ) {  // if we have come across the element that is in stack and it is end for the  scc.
+			low[i] = min(low[i],disc[v]); 
+		
+		}
+	}
+	int w, count=0; // w stores the extracted vertex. count to keep track of no. of nodes in scc.
+
+	if(disc[i] == low[i] ){
+		
+		while(st->top() != i)
+		{	w= st->top();
+			stackmember[w]=false;
+			cout<<w;
+			count++;
+			st->pop();
+		}
+		w= st->top();
+		stackmember[w]=false;
+		cout<<w<<endl;
+		st->pop();
+		count++;
+	}
+   
+	
+	if(count  % 2==0 ){ d= d +count;}
+	else{ c =c + count; }
+
+	
+
+
+
+}
+void scc(vector<int >adj[] , int n){
+	int low[n];
+	int disc[n];
+	
+
+	bool stackmember[n];
+	stack < int > st;
+	for(int i =0 ; i <= n ; i++){
+		stackmember[i]=false ;
+		low[i]=disc[i]=-1;
+	}
+	int ans =0;
+	for(int i =1; i<=n ; i++){
+		if(disc[i]==-1){
+			storestack(i,adj,disc,low,&st,stackmember );
+		}
+	}
+	cout<<c-d;
+
+}
+
+int main(){
+	int n,m;
+	cin>>n>>m;
+	vector< int > adj[n+1];
+	while(m--){
+		int a,b;
+		cin>>a>>b;
+		adj[a].push_back(b);
+
+	}
+	scc(adj,n);
+}
